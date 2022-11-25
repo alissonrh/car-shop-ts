@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import ICar from '../Interfaces/ICar';
+/* import ICar from '../Interfaces/ICar'; */
 import CarService from '../Services/CarService';
 
 class CarController {
@@ -16,19 +16,50 @@ class CarController {
   }
 
   public async create() {
-    const car: ICar = {
-      model: this.req.body.model,
-      year: this.req.body.year,
-      color: this.req.body.color,
-      status: this.req.body.status,
-      buyValue: this.req.body.buyValue,
-      doorsQty: this.req.body.doorsQty,
-      seatsQty: this.req.body.seatsQty,
-    };
+    /*     const car: ICar = {
+          model: this.req.body.model,
+          year: this.req.body.year,
+          color: this.req.body.color,
+          status: this.req.body.status,
+          buyValue: this.req.body.buyValue,
+          doorsQty: this.req.body.doorsQty,
+          seatsQty: this.req.body.seatsQty,
+        }; */
 
     try {
-      const newCar = await this.service.create(car);
+      const newCar = await this.service.create(this.req.body);
       return this.res.status(201).json(newCar);
+    } catch (error) {
+      this.next(error);
+    }
+  }
+
+  public async getAll() {
+    const cars = await this.service.getAll();
+    return this.res.status(200).json(cars);
+  }
+
+  public async getById() {
+    try {
+      const { id } = this.req.params;
+      const car = await this.service.getById(id);
+      if (!car) {
+        return this.res.status(404).json({ message: 'Car not found' });
+      }
+      return this.res.status(200).json(car);
+    } catch (error) {
+      this.next(error);
+    }
+  }
+
+  public async update() {
+    try {
+      const { id } = this.req.params;
+      const car = await this.service.update(id, this.req.body);
+      if (!car) {
+        return this.res.status(404).json({ message: 'Car not found' });
+      }
+      return this.res.status(200).json(car);
     } catch (error) {
       this.next(error);
     }
